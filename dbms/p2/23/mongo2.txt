@@ -1,0 +1,51 @@
+/*
+Implement aggregation and indexing with suitable example using MongoDB.
+*/
+
+
+> db.createCollection('student')
+
+> db.student.insert({roll:1,mark:50,college:'ait'})
+
+> db.student.insert({roll:2,mark:53,college:'coep'})
+
+> db.student.insert({roll:3,mark:63,college:'coep'})
+
+> db.student.insert({roll:4,mark:43,college:'pict'})
+
+> db.student.insert({roll:5,mark:83,college:'ait'})
+
+> db.student.find({},{_id:0})
+
+//create index
+> db.student.ensureIndex({roll:1})
+
+> db.student.ensureIndex({roll:1,mark:-1})
+
+//also can be created
+> db.stud.createIndex({roll:1})
+
+//Returns an array that holds a list of documents thatdescribe the existing indexes on the collection
+>db.student.getIndexes()
+
+//sort according to index
+>db.student.find().sort({marks:1}).pretty()
+
+//drop an index
+> db.student.dropIndex({roll:1})
+
+
+//aggregation
+
+>db.student.aggregate([{$group:{_id:'$college',avg:{$avg:'$mark'}}}])
+
+>db.student.aggregate([{$group:{_id:'$college',max:{$max:'$mark'}}}])
+
+> db.student.aggregate([{$group:{_id:'$college',min:{$min:'$marks'}}}])
+
+> db.student.aggregate([{$group:{_id:'$college',sum:{$sum:'$marks'}}}])
+
+
+
+
+

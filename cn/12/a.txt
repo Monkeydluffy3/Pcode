@@ -1,0 +1,17 @@
+
+
+Total no of GeneratedPackets            = 17642
+Total no of ReceivedPackets             = 17572
+Total no of Dropped Packets = 70
+Total Packet Delivery Ratio      = 99.6032
+Total no of TCP send            = 6995
+Total no of UDP send            = 3717
+Total no of ACK send            = 6930
+Total no of TCP receive            = 6930
+Total no of UDP receive            = 3712
+Total no of ACK receive            = 6930
+Total no of TCP drop            = 65
+Total no of UDP drop            = 5
+Total no of ACK drop            = 0
+
+

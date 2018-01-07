@@ -1,0 +1,121 @@
+#include<iostream>
+#include<stdio.h>
+#include<string.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>
+#include<unistd.h>
+using namespace std;
+
+int main()
+{
+	int sock, c, read_size, client_sock,i,j,k;
+	struct sockaddr_in ser, cli;
+	char message[2000], server_reply[2000];
+	
+	//Socket creation
+	sock= socket(AF_INET, SOCK_STREAM, 0);
+	if(sock <0)
+	{
+		printf("Could not create socket\n");
+		return 1;
+	}
+	puts("Socket Created");
+	
+	//Prepare the sockaddr_in struct
+	ser.sin_family = AF_INET;
+	ser.sin_addr.s_addr = inet_addr("127.0.0.1");
+	ser.sin_port = htons(8888);
+	
+	//Connect
+	if( connect(sock, (struct sockaddr *)&ser, sizeof(ser)) < 0)
+	{
+		printf("Connect Failed");
+		return 1;
+	}
+	puts("Connected\n");
+	
+	//communcating
+	
+	//get frame
+    int fs;
+    cout<<"\nEnter size of frame : ";
+    cin>>fs;
+    char f[20];
+    cout<<"\nEnter frame : ";
+    scanf("%s",f);
+        
+    //get generator
+    int gs;
+    cout<<"\nEnter size of generator : ";
+    cin>>gs;
+    char g[20];
+    cout<<"\nEnter generator : ";
+    scanf("%s",g);
+	
+	cout<<"\nFrame : ";
+    for(i=0;i<fs;i++)
+        cout<<f[i];
+         
+    cout<<"\nGenerator : ";
+    for(i=0;i<gs;i++)
+        cout<<g[i];
+        
+    int rs=gs-1;
+    for(i=fs;i<fs+rs;i++)
+        f[i]='0';
+    f[fs+rs]='\0';
+    char tmp[20];
+    for(i=0;i<=fs+rs;i++)
+        tmp[i]=f[i];
+       
+    
+    for(i=0;i<fs;i++)
+    {
+        j=0,k=i;
+        if(tmp[k]>=g[j])
+        {
+            for(j=0,k=i;j<gs;j++,k++)
+                tmp[k]=(tmp[k]^g[j])+48;
+        }
+    }
+    
+    cout<<"\nCRC : ";
+    for(i=0;i<rs;i++)
+    {    
+        cout<<tmp[i+fs];
+        f[i+fs]=tmp[i+fs];
+    }
+    cout<<"\n";
+    
+    cout<<"\nTransmitted frame : ";
+    for(i=0;i<fs+rs;i++)
+        cout<<f[i];
+	cout<<"\n";
+	
+	
+	//send
+	if( send(sock, f, 20, 0 ) < 0)
+	{
+		puts("Send Failed");
+		return 1;
+	}
+	if( send(sock, g, 20, 0 ) < 0)
+	{
+		puts("Send Failed");
+		return 1;
+	}
+	
+	if( recv(sock, server_reply, 2000, 0) < 0)
+	{
+		puts("recv Failed");
+		
+	}
+	
+	puts("Server Reply =");
+	puts(server_reply);
+	
+	close(sock);
+	
+	return 0;
+}
+

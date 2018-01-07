@@ -1,0 +1,46 @@
+/*
+Design and Develop MongoDB Queries using CRUD operations. (Use CRUD operations,
+SAVE method, logical operators)
+*/
+
+//create and use a database
+> use p1
+
+
+//Create a collection
+> db.createCollection("stud_info")
+
+//Insert documents in collection
+> db.stud_info.insert({roll:1,name:"saurav",mobile:8390166191})
+
+> db.stud_info.insert({roll:2,name:"sen",mobile:9421406816})
+
+//using save method
+> db.stud_info.save({roll:3,name:"sachin",mobile:123456789})
+
+//multi insert
+>db.stud_info.insert([{roll:3,name:"hai",mobile:90166191},{roll:4,name:"fsfg"}])
+
+//Print collection (unformatted)
+> db.stud_info.find()
+
+//Print collection (formatted)
+> db.stud_info.find().pretty()
+
+//Update a document
+> db.stud_info.update({roll:3},{$set : {mobile:9635663715}})
+
+//Use logical operators
+> db.stud_info.find({$and:[{name:"sen"},{roll:2}]},{_id:0})
+
+> db.stud_info.find({roll:{$lt:2}},{_id:0})
+
+> db.stud_info.find({roll:{$lt:3}},{_id:0})
+
+> db.stud_info.find({roll:{$not:{$lt:3}}},{_id:0})
+
+//Remove a document
+> db.stud_info.remove({roll:3})
+
+//Delete a collection
+> db.stud_info.drop()

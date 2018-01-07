@@ -1,0 +1,303 @@
+1
+
+create table detail(accno int,branchname varchar(20),cust_name  varchar(20),status varchar(2));
+create table active_acc_details(accno int,branchname varchar(20),cust_name varchar(20),status varchar(2));
+
+create or replace function bank(accountno IN varchar2,bname IN varchar2)
+return varchar
+is
+st varchar(2);
+cname varchar(20);
+x varchar(20);
+begin
+select cust_name,status into cname,st from detail where accno = accountno and branchname = bname;
+if st = 'I' then
+x :='account is inactive';
+elsif st = 'A' then
+x :='account is active';
+insert into active_acc_details values(accountno,bname,cname,st);
+end if;
+return x;
+end;
+/
+
+set serveroutput on;
+declare
+x varchar(20);
+accountno int;
+bname varchar(20);
+begin
+accountno :=&accountno;
+bname :=&bname;
+x:=bank(accountno,bname);
+dbms_output.put_line('message : ' || x);
+end;
+/
+
+
+2
+
+/*
+
+2. Write a PL/SQL stored Procedure for following requirements and call the procedure in appropriate PL/SQL block. 1. Borrower(Rollin, Name, DateofIssue, NameofBook, Status) 2. Fine(Roll_no,Date,Amt)  Accept roll_no & name of book from user.  Check the number of days (from date of issue), if days are between 15 to 30 then fine amount will be Rs 5per day.  If no. of days>30, per day fine will be Rs 50 per day & for days less than 30, Rs. 5 per day.  After submitting the book, status will change from I to R.  If condition of fine is true, then details will be stored into fine table.
+
+*/
+
+create table borrower(roll int,name varchar(20),doi date,bname varchar(20),status varchar(2));
+create table fine(roll_no,da date,amt int);
+
+create or replace procedure func(rollno IN varchar2,nob IN varchar2)
+is
+diff int;
+amt int;
+issuedate date;
+begin
+select doi into issuedate from borrower where roll = rollno and bname = nob;
+diff := sysdate - issuedate;
+
+if diff >=15 and diff<=30 then
+amt := diff * 5;
+elsif diff >30 then
+amt := 30*5 + (diff-30)*50;  
+else
+amt :=0;
+end if;
+
+update Borrower set status='R' where roll=rollno and bname=nob;
+if amt>0 then
+insert into fine values(rollno,sysdate,amt);
+end if;
+
+EXCEPTION
+when no_data_found then
+dbms_output.put_line('Record not found');
+
+end;
+/
+
+set serveroutput on;
+declare 
+rn int;
+bk varchar(20);
+begin
+rn:=&rn;
+bk:=&bk;
+func(rn,bk);
+end;
+/
+
+
+3
+
+/*
+3. The bank manager has decided to activate all those accounts which were previously marked as inactive for performing no transaction in last 365 days. Write a PL/SQ block (using implicit cursor) to update the status of account, display an approximate message based on the no. of rows affected by the update. (Use of %FOUND, %NOTFOUND, %ROWCOUNT)
+
+*/
+
+create table account1(accno int,cust_name varchar(20),status varchar(2));
+insert into account1 values(1,'rahul','I');
+insert into account1 values(2,'rahul1','I');
+insert into account1 values(3,'rahul2','A');
+insert into account1 values(4,'rahul3','I');
+insert into account1 values(5,'rahul4','A');
+
+
+set serveroutput on;
+declare
+cou int;
+begin
+update account1 set status = 'A' where status = 'I';
+if sql%notfound then
+dbms_output.put_line('No record get updated');
+else
+cou := sql%rowcount;
+dbms_output.put_line('record updated ' ||cou);
+end if;
+end;
+/
+
+
+4
+
+/*
+EXPLICIT CURSOR: 
+4. Organization has decided to increase the salary of employees by 10% of existing salary, who are having salary less than average salary of organization, Whenever such salary updates takes place, a record for the same is maintained in the increment_salary table. EMP (E_no , Salary) increment_salary(E_no , Salary)
+
+*/
+
+
+set serveroutput on;
+declare
+average int;
+cursor cur_emp is select no,sal from emp;
+record emp%rowtype;
+begin
+
+select avg(sal) into average from emp;
+dbms_output.put_line('the average salary of the organization is '|| average);
+open cur_emp; 
+loop
+fetch cur_emp into record;
+exit when cur_emp%notfound;
+if record.sal < average then
+update emp set sal = sal + sal * 0.1 where no = record.no;
+record.sal := record.sal + record.sal*0.1;
+insert into uptab values(record.no , record.sal);
+end if;
+end loop;
+
+end;
+/
+
+
+/*
+5. Write PL/SQL block using explicit cursor for following requirements: College has decided to mark all those students detained (D) who are having attendance less than 75%. Whenever such update takes place, a record for the same is maintained in the D_Stud table. create table stud21(roll number(4), att number(4), status varchar(1)); create table d_stud(roll number(4), att number(4))
+
+*/
+
+create table stud1(roll int, att int, status varchar(2));
+insert into stud1 values(1,85,'ND');
+insert into stud1 values(2,65,'ND');
+insert into stud1 values(3,55,'ND');
+insert into stud1 values(4,80,'ND');
+insert into stud1 values(5,50,'ND');
+
+
+create table d_stud1(roll int, att int);
+
+set serveroutput on;
+declare 
+cursor curo is select roll,att,status from stud1;
+record stud1%rowtype;
+begin
+open curo;
+loop
+fetch curo into record;
+exit when curo%notfound; 
+if record.att < 75 then
+update stud1 set status = 'D' where roll=record.roll;
+insert into d_stud1 values(record.roll,record.att);
+end if;
+end loop;
+close curo;
+end;
+/
+
+
+6
+
+Parameterized Cursor 
+6. Write a PL/SQL block of code using parameterized Cursor, that will merge the data available in the newly created table N_RollCall with the data available in the table O_RollCall. If the data in the first table already exist in the second table then that data should be skipped.
+
+
+create table old_tab(id int,name varchar(20));
+insert into old_tab values(1,'vikas');
+insert into old_tab values(2,'tushar');
+insert into old_tab values(3,'varun');
+insert into old_tab values(4,'vishwa');
+insert into old_tab values(5,'shaurya');
+insert into old_tab values(6,'reshav');
+
+create table new_tab(id int,name varchar(20));
+
+set serveroutput on;
+declare
+id1 int;
+id2 int;
+name1 varchar(20);
+name2 varchar(20);
+cursor old_cur is select * from old_tab;
+cursor new_cur(roll_no int) is select * from new_tab where roll_no = id;
+begin
+open old_cur;
+
+loop
+fetch old_cur into id1,name1;
+exit when old_cur%notfound;
+open new_cur(id1);
+fetch new_cur into id2,name2;
+if new_cur%notfound then
+insert into new_tab values(id1,name1);
+end if;
+close new_cur;
+end loop;
+close old_cur;
+end;
+/
+
+
+
+Parameterized Cursor 
+7. Write the PL/SQL block for following requirements using parameterized Cursor: Consider table EMP(e_no, d_no, Salary), department wise average salary should be inserted into new table dept_salary(d_no, Avg_salary)
+
+create table emp1(id int,dno int,sal int);
+insert into emp1 values(1,101,10000);
+insert into emp1 values(2,101,19000);
+insert into emp1 values(3,102,18000);
+insert into emp1 values(4,103,17000);
+insert into emp1 values(5,103,12000);
+insert into emp1 values(6,102,13000);
+
+create table dsal(dno int,dsal int);
+
+
+set serveroutput on;
+declare
+cursor emp_cur is select * from emp1;
+cursor dep_cur(d_no int) is select * from dsal where d_no = dno;
+average int;
+pt1 emp1%rowtype;
+pt2 dsal%rowtype; 
+
+begin
+open emp_cur;
+loop
+fetch emp_cur into pt1;
+exit when emp_cur%notfound;
+open dep_cur(pt1.dno);
+fetch dep_cur into pt2;
+if dep_cur%notfound then
+select avg(sal) into average from emp1 group by dno having dno = pt1.dno;
+insert into dsal values(pt1.dno,average);
+end if;
+close dep_cur; 
+end loop;
+close emp_cur;
+end;
+/
+
+
+/*
+8. Write PL/SQL block using explicit cursor: Cursor FOR Loop for following requirements: College has decided to mark all those students detained (D) who are having attendance less than 75%. Whenever such update takes place, a record for the same is maintained in the D_Stud table. create table stud21(roll number(4), att number(4), status varchar(1)); create table d_stud(roll number(4), att number(4));
+
+*/
+
+create table stud2(roll int, att int, status varchar(2));
+insert into stud2 values(1,85,'ND');
+insert into stud2 values(2,65,'ND');
+insert into stud2 values(3,55,'ND');
+insert into stud2 values(4,80,'ND');
+insert into stud2 values(5,50,'ND');
+insert into stud2 values(6,56,'ND');
+
+
+create table d_stud2(roll int, att int);
+
+set serveroutput on
+declare 
+cursor exp_cur is select * from stud2;
+count1 int;
+record exp_cur%rowtype;
+begin
+open exp_cur;
+select count(roll) into count1 from stud2;
+for i in 1..count1 LOOP 
+fetch exp_cur into record;
+if record.att<75 then
+update stud2 set status='D' where record.roll=roll;
+insert into d_stud2 values(record.roll,record.att);
+end if;
+end loop;
+close exp_cur;
+end;
+/

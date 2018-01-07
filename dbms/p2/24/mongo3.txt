@@ -1,0 +1,36 @@
+/*
+Implement Map reduces operation with suitable example using MongoDB.
+*/
+
+
+> db.createCollection('student')
+
+ db.student.insert({roll:1,mark:50,college:'ait'})
+
+ db.student.insert({roll:2,mark:53,college:'coep'})
+
+ db.student.insert({roll:3,mark:63,college:'coep'})
+
+ db.student.insert({roll:4,mark:43,college:'pict'})
+
+ db.student.insert({roll:5,mark:83,college:'ait'})
+
+> db.student.find()
+
+//map reduce operation to find number of student in each college
+
+> db.student.mapReduce(
+     function() {emit(this.college,1);},
+     function(key,values) {return Array.sum(values)},
+     {
+         out:"Total Student"
+     } )
+
+
+> db.student.mapReduce(
+     function() {emit(this.college,1);},
+     function(key,values) {return Array.sum(values)},
+     {
+         out:"Total Student"
+     } ).find()
+

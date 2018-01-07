@@ -1,0 +1,47 @@
+/*
+Design and Implement any 5 query using MongoDB
+*/
+
+> db.createCollection('student')
+{ "ok" : 1 }
+> db.student.insert({roll:1,mark:50,college:'ait'})
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({roll:2,mark:53,college:'coep'})
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({roll:3,mark:63,college:'coep'})
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({roll:4,mark:43,college:'pict'})
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({roll:5,mark:83,college:'ait'})
+WriteResult({ "nInserted" : 1 })
+
+
+
+//students from ait or coep
+> db.student.find({$or:[{college:'ait'},{college:'coep'}]},{_id:0})
+
+
+
+//student with marks greater than 75
+> db.student.find({mark:{$gt:75}},{_id:0})
+{ "roll" : 5, "mark" : 83, "college" : "ait" }
+
+
+//Number of students from each college
+> db.student.mapReduce(
+...     function() {emit(this.college,1);},
+...     function(key,values) {return Array.sum(values)},
+...     {
+...         out:"Total Student"
+...     }
+... ).find()
+
+
+
+//transfer roll 2 to mit
+> db.student.update({roll:2},{$set:{college:'mit'}})
+
+
+//average marks by college
+> db.student.aggregate([{$group:{_id:'$college',avg:{$avg:'$mark'}}}])
+

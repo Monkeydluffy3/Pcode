@@ -1,0 +1,6 @@
+4.       
+Lab Assignment on Unit V: (Use JAVA)
+Write a program using TCP sockets for wired network to implement
+a. Peer to Peer Chat
+b. Multiuser Chat
+Demonstrate the packets captured traces using Wireshark Packet Analyzer Tool for peer to peer mode

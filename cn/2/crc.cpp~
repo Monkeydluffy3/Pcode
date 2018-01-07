@@ -1,0 +1,113 @@
+//Error detection and correction for 7-8 bits CRC for peer to peer nodes.
+
+#include<iostream>
+using namespace std;
+
+int main()
+{
+    int i,j,k,l;
+    
+    //get frame
+    int fs;
+    cout<<"\nEnter size of frame : ";
+    cin>>fs;
+    int f[20];
+    cout<<"\nEnter frame : ";
+    for(i=0;i<fs;i++)
+        cin>>f[i];
+        
+    //get generator
+    int gs;
+    cout<<"\nEnter size of generator : ";
+    cin>>gs;
+    int g[20];
+    cout<<"\nEnter generator : ";
+    for(i=0;i<gs;i++)
+        cin>>g[i];
+    
+    //sender's side
+    cout<<"\nFrame : ";
+    for(i=0;i<fs;i++)
+        cout<<f[i];
+         
+    cout<<"\nGenerator : ";
+    for(i=0;i<gs;i++)
+        cout<<g[i];
+        
+    int rs=gs-1;
+    for(i=fs;i<fs+rs;i++)
+        f[i]=0;
+        
+    int tmp[20];
+    for(i=0;i<fs+rs;i++)
+        tmp[i]=f[i];
+        
+    for(i=0;i<fs;i++)
+    {
+        j=0,k=i;
+        if(tmp[k]>=g[j])
+        {
+            for(j=0,k=i;j<gs;j++,k++)
+                tmp[k]^=g[j];
+        }
+    }
+    
+    
+    int crc[15];
+    cout<<"\n\nCRC : ";
+    for(i=0;i<rs;i++)
+    {
+        crc[i]=tmp[i+fs];
+        cout<<crc[i];
+    }
+    cout<<"\n";
+    
+    
+    
+    int tf[20];
+    for(i=0;i<fs;i++)
+        tf[i]=f[i];
+    for(i=fs;i<fs+rs;i++)
+        tf[i]=crc[i-fs];
+    
+    cout<<"\nTransmitted frame : ";
+    for(i=0;i<fs+rs;i++)
+        cout<<tf[i];
+        
+    
+    //receiver
+    cout<<"\nReceived frame : ";
+    for(i=0;i<fs+rs;i++)
+    {    
+        cout<<tf[i];
+        tmp[i]=tf[i];
+    }
+    
+    for(i=0;i<fs;i++)
+    {
+        j=0,k=i;
+        if(tmp[k]>=g[j])
+        {
+            for(j=0,k=i;j<gs;j++,k++)
+                tmp[k]^=g[j];   
+        }
+    }
+    
+    int rr[15],flag=1;
+    cout<<"\n\nRemainder : ";
+    for(i=0;i<rs;i++)
+    {
+        rr[i]=tmp[i+fs];
+        cout<<rr[i];
+        if(rr[i]==1)
+          flag=0;      
+    }
+    
+    if(flag)
+      cout<<"\n\nTransmitted properly!";
+    else
+      cout<<"\n\nError in transmission!!!";
+    
+}    
+    
+    

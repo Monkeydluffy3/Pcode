@@ -1,0 +1,8 @@
+3.       
+Lab Assignment on Unit V: (Mandatory Assignment) (Use C/C++)
+Write a program using TCP socket for wired network for following
+a. Say Hello to Each other ( For all students)
+b. File transfer ( For all students)
+c. Calculator (Arithmetic) (50% students)
+d. Calculator (Trigonometry) (50% students)
+Demonstrate the packets captured traces using Wireshark Packet Analyzer Tool for peer to peer mode.
